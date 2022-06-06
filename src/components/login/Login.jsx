@@ -1,18 +1,40 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const signIn = e => {
-    e.preventDefault()
-  }
+  const signIn = async (e) => {
+    e.preventDefault();
 
-  const register = e => {
-    e.preventDefault()
-  }
+    await signInWithEmailAndPassword(auth, email, password)
+      .then((user) => {
+        if (user) {
+          navigate("/")
+        }
+      })
+      .catch(error => alert(error.message))
+    }
+
+  const register = async (e) => {
+    e.preventDefault();
+
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then((user) => {
+        if (user) {
+          navigate("/")
+        }
+      })
+      .catch(error => alert(error.message))
+  };
   return (
     <div className="login">
       <Link to="/">
@@ -47,7 +69,10 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="login__signInButton" onClick={signIn}>
+          <button
+            type="submit"
+            className="login__signInButton"
+            onClick={signIn}>
             Sign In
           </button>
         </form>

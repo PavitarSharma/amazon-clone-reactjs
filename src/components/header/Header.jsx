@@ -1,13 +1,27 @@
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingBasketIcon from "@mui/icons-material/ShoppingBasket";
 import { useStateValue } from "../../state/StateProvider";
+import { auth } from '../../firebase'
+import { signOut } from "firebase/auth";
+
 
 const Header = () => {
-  const [{ basket }, dispatch] = useStateValue();
+  const [{ basket , user }, dispatch] = useStateValue()
+  const navigate = useNavigate()
+  const handleAuthentication = () => {
+    if(user) {
+      signOut(auth)
+        .then(() => {
+          alert('User sign out successfully')
+          navigate('/login')
+        })
+        .catch(error => alert(error.message))
+    }
+  }
   return (
-    <div className="header">
+    <div className={user ? "header": "header__hidden"}>
       <Link to="/">
         <img
           className="header__logo"
@@ -23,9 +37,9 @@ const Header = () => {
 
       <div className="hearder__nav">
         <Link to="/login">
-          <div className="header__options">
-            <span className="header__optionLineOne">Hello Guest</span>
-            <span className="header__optionLineTwo">Sign in</span>
+          <div className="header__options" onClick={handleAuthentication}>
+            <span className="header__optionLineOne">{user && user.email}</span>
+            <span className="header__optionLineTwo">{user ? 'Sign out' : 'Sign In'}</span>
           </div>
         </Link>
 
@@ -38,7 +52,6 @@ const Header = () => {
           <span className="header__optionLineOne">Your</span>
           <span className="header__optionLineTwo">Prime</span>
         </div>
-
         <Link to="/checkout">
           <div className="header__optionBasket">
             <ShoppingBasketIcon />
@@ -47,6 +60,8 @@ const Header = () => {
             </span>
           </div>
         </Link>
+
+        
       </div>
     </div>
   );
